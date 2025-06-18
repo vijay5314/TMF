@@ -62,11 +62,25 @@ h2, h3, h4, h5, h6 {
       margin: auto;
     }
 
-    h1, h2 {
+    h1 {
       text-align: center;
       font-size: 3rem;
       color: #333;
     }
+
+    h2 {
+  text-align: center;
+  font-size: 2.2rem;
+  color: #333;
+  word-wrap: break-word;
+  }
+
+/* Responsive scaling for small screens */
+@media (max-width: 600px) {
+  h2 {
+    font-size: 1.5rem;
+  }
+}
 
     label {
       display: block;
@@ -176,11 +190,6 @@ body {
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
-
-/* 
-    canvas {
-      height: 10px;
-    } */
 
     .bmi-box {
   margin-top: 10px;
