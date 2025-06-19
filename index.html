@@ -40,12 +40,13 @@ h2, h3, h4, h5, h6 {
 }
 
 #welcome-screen button {
+  font-family: 'Courier New', Courier, monospace;
   font-size: 1rem;
-  padding: 10px 20px;
+  padding: 5px 25px;
   border: none;
   background-color: #4CAF50;
   color: white;
-  border-radius: 6px;
+  border-radius: 50px;
   cursor: pointer;
 }
 
@@ -123,16 +124,16 @@ h2, h3, h4, h5, h6 {
     }
 
     input[type="number"] {
-     -moz-appearance: textfield;
+     appearance: textfield;
     }
 
     button {
       font-size: 0.85rem;
-      padding: 5px 5px;
+      padding: 1px 20px;
       margin-top: 8px;
       background-color: #f0f0f0;
       border: 1px solid #bbb;
-      border-radius: 5px;
+      border-radius: 55px;
       cursor: pointer;
     }
 
@@ -241,10 +242,10 @@ button {
   margin-top: 10px;
   margin-left: 5px;
   font-size: 0.75rem;
-  padding: 4px 8px;
+  padding: 2px 6px;
   background-color: #eee;
   border: 1px solid #bbb;
-  border-radius: 4px;
+  border-radius: 15px;
   cursor: pointer;
 }
 
@@ -285,10 +286,6 @@ button {
   opacity: 1;
   transform: translateY(0);
 }
-
-/* This is for mobile layout, don't change */
-
-
 
 input, button, select {
   touch-action: manipulation;
@@ -335,13 +332,128 @@ button {
   }
 }
 
+/* Fade-in on load */
+body {
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+body.loaded {
+  opacity: 1;
+}
+
+/* Soft glow for key containers */
+.overlay, #entries, #goal-display, .bmi-box {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Hero-style glass blur effect for welcome screen */
+#welcome-screen {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Animated progress bar */
+#progress-bar {
+  animation: fill-bar 1.2s ease-out;
+}
+@keyframes fill-bar {
+  from {
+    width: 0%;
+  }
+}
+
+/* Animated entry hover */
+.entry:hover {
+  background-color: #f9f9f9;
+  transform: scale(1.01);
+  transition: all 0.2s ease;
+}
+
+/* Upgraded toggle button style */
+.toggle-btn {
+  width: 160px;
+  height: 44px;
+  font-size: 0.9rem;
+  background: linear-gradient(135deg, #6ec1e4, #4ca1af);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+.toggle-btn:hover {
+  background: linear-gradient(135deg, #4ca1af, #3b8d99);
+  transform: translateY(-2px);
+}
+
+.animated-title {
+  animation: fadeInUp 1s ease-out;
+  opacity: 0;
+  transform: translateY(20px);
+  animation-fill-mode: forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#progress-bar span {
+  display: block;
+  font-weight: bold;
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+#dynamic-heading {
+  animation: pulse 3s ease-in-out infinite;
+  display: inline-block;
+  position: relative;
+}
+
+.full-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 20vh; /* full screen height */
+  text-align: center;
+}
+
+#weekly-ring-container {
+  margin-top: 10px;
+}
+
+#weekly-ring {
+  transition: stroke-dashoffset 0.6s ease;
+}
+
+#goal-details {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, opacity 0.4s ease;
+  opacity: 0;
+}
+
+#goal-details.open {
+  max-height: 200px;
+  opacity: 1;
+}
+
   </style>
 </head>
 
 <body>
 <div class="overlay">
 <div id="welcome-screen"> 
-  <h1>Welcome to TrackMyFitness©️</h1>
+  <h1 class="animated-title">Welcome to TrackMyFitness©️</h1>
   <p>Your personal health and weight progress companion.</p>
   <button onclick="enterApp()">Start Tracking</button>
 </div>
@@ -349,7 +461,9 @@ button {
 <div id="app-screen" style="display: none;">
   <!-- your current content here -->
 
-  <h2>TrackMyFitness©️</h2>
+  <div class="full-center">
+  <h2 id="dynamic-heading">TrackMyFitness©️</h2>
+</div>
 
   <div id="goal-input-section" class="form-group">
   <label for="goal">Set Your Goal Weight (kg):</label>
@@ -357,13 +471,88 @@ button {
   <button onclick="saveGoal()">Save Goal</button>
 </div>
 
-<div id="goal-display"> </div>
+<div id="goal-display">
+  <div id="goal-summary" style="text-align: center; font-size: 2.2rem; font-weight: bold; margin-bottom: 0.5rem;">
+    🎯 <span id="goal-weight-text">-- kg</span>
+  </div>
+
+  <button class="toggle-btn" onclick="toggleGoalDetails(event)">More Info ↓</button>
+
+  <div id="goal-details" style="display: none; margin-top: 10px; font-size: 1rem; text-align: center;">
+    <div id="goal-diff-text"></div>
+    <button class="small-btn" onclick="editGoal()">✏️ Edit Goal</button>
+  </div>
+</div>
+
 
 <div id="progress-bar-container">
-  <div id="progress-bar"></div>
+  <div id="progress-bar">
+    <span id="progress-number">0%</span>
+  </div>
 </div>
+
 <div id="progress-message" class="progress-message"></div>
 
+<!-- Weekly Goal Setup Section -->
+<div id="weekly-goal-section" style="display: none; padding: 10px; background: #f9f9f9; border-radius: 8px; margin-bottom: 15px;">
+  <label for="weekly-goal">Weekly Goal Change (kg):</label>
+  <input type="number" id="weekly-goal" placeholder="-1.0 for loss or 1.0 for gain">
+
+  <label for="weekly-start-date">Start Date:</label>
+  <input type="date" id="weekly-start-date">
+
+  <div id="weekly-end-date" style="margin-top: 8px; margin-bottom: 8px; font-size: 0.9rem; color: #555;"></div>
+
+  <button onclick="saveWeeklyGoal()">✅ Save Weekly Goal</button>
+</div>
+
+<div id="weekly-progress" class="bmi-box" style="background-color: #fff; color: #333;"></div>
+
+<div id="weekly-ring-container" style="display: flex; justify-content: center; align-items: center; margin-top: 10px;">
+  <svg width="90" height="90" viewBox="0 0 100 100">
+    <circle
+      cx="50" cy="50" r="45"
+      stroke="#eee"
+      stroke-width="10"
+      fill="none"
+    />
+    <circle
+      id="weekly-ring"
+      cx="50" cy="50" r="45"
+      stroke="#4caf50"
+      stroke-width="10"
+      fill="none"
+      stroke-linecap="round"
+      stroke-dasharray="282.6"
+      stroke-dashoffset="282.6"
+      transform="rotate(-90 50 50)"
+    />
+    <text
+      id="weekly-ring-label"
+      x="50%" y="54%"
+      text-anchor="middle"
+      fill="#333"
+      font-size="16px"
+      font-weight="bold"
+    >0%</text>
+  </svg>
+</div>
+
+<div class="form-group">
+  <button onclick="toggleWeeklyGoal()" id="weekly-goal-toggle" class="toggle-btn">Show Weekly Goal</button>
+</div>
+
+<div class="form-group">
+  <button onclick="toggleWeeklyHistory()" class="toggle-btn" id="history-toggle-btn">Show Weekly History</button>
+</div>
+
+<div id="weekly-history-section" style="display: none;">
+  <h3>📚 Weekly Summaries</h3>
+  <ul id="weekly-history-list" class="bmi-history"></ul>
+  <div style="margin-top: 10px;">
+    <button onclick="resetWeeklyHistory()" class="toggle-btn">🗑 Reset Weekly History</button>
+  </div>
+</div>
 
 <button onclick="toggleWeightForm()" class="toggle-btn">Add Weight</button>
 
@@ -404,7 +593,7 @@ button {
 </div>
 
   <div class="form-group">
-  <button onclick="toggleEntries()" class="toggle-btn">Show Your Records ↓</button>
+  <button onclick="toggleEntries()" class="toggle-btn">Show Your Records</button>
 </div>
 
   <div id="entries" style="display: none;">
@@ -426,6 +615,8 @@ document.addEventListener('DOMContentLoaded', () => {
   updateGoalMessage();
   displayEntries();
   displayBMIHistory();
+  updateWeeklyProgress();
+  displayWeeklyHistory();
 });
 
 function enterApp() {
@@ -470,33 +661,53 @@ function loadGoal() {
      updateGoalMessage();
  }
 
+
 function updateGoalMessage() {
-  // Hide input section if goal is already set
-  if (goalWeight) {
-    document.getElementById('goal-input-section').style.display = 'none';
-  }
+      const goalText = document.getElementById('goal-weight-text');
+      const diffText = document.getElementById('goal-diff-text');
+      const goalInputSection = document.getElementById('goal-input-section');
+      const goalDetails = document.getElementById('goal-details');
 
-  // Build base goal message
-  let message = `<p><strong>Goal:</strong> ${goalWeight ? goalWeight + ' kg' : 'Not set yet'}</p>`;
+      if (goalWeight) {
+        goalInputSection.style.display = 'none';
+        goalText.textContent = `${goalWeight} kg`;
 
-  // Add comparison to latest entry if available
-  if (goalWeight && entries.length > 0) {
-    const sorted = [...entries].sort((a, b) => new Date(a.date) - new Date(b.date));
-    const latest = sorted[sorted.length - 1].weight;
-    const diff = (latest - goalWeight).toFixed(1);
+        if (entries.length === 0) {
+          diffText.innerHTML = `No weight entries yet.`;
+        } else {
+          const sorted = [...entries].sort((a, b) => new Date(a.date) - new Date(b.date));
+          const latest = sorted[sorted.length - 1].weight;
+          const diff = (latest - goalWeight).toFixed(1);
 
-    if (diff > 0) {
-      message += `<p>You are ${diff} kg <strong>above</strong> your goal. Keep going! 💪</p>`;
-    } else if (diff < 0) {
-      message += `<p>You're ${Math.abs(diff)} kg <strong>below</strong> your goal! 🎉</p>`;
-    } else {
-      message += `<p>You reached your goal! 🏁</p>`;
+          if (diff > 0) {
+            diffText.innerHTML = `📈 ${diff} kg <strong>above</strong> your goal`;
+          } else if (diff < 0) {
+            diffText.innerHTML = `📉 ${Math.abs(diff)} kg <strong>below</strong> your goal`;
+          } else {
+            diffText.innerHTML = `✅ You've reached your goal!`;
+          }
+        }
+
+        // Show edit button regardless of weight entry state
+        goalDetails.style.display = 'block';
+
+      } else {
+        goalInputSection.style.display = 'block';
+        goalText.textContent = '-- kg';
+        diffText.innerHTML = `Goal not set yet.`;
+        goalDetails.style.display = 'none';
+      }
     }
-  }
 
-  // Add edit button
-  message += `<button class="small-btn" onclick="editGoal()">✏️</button>`;
-  goalDisplay.innerHTML = message;
+
+function toggleGoalDetails(event) {
+      const section = document.getElementById('goal-details');
+      const btn = event.target;
+      const isVisible = section.classList.contains('open');
+
+      section.classList.toggle('open');
+      btn.textContent = isVisible ? 'More Info ↓' : 'Less Info ↑';
+    }
 
   // -------- Progress bar logic --------
   const progressBar = document.getElementById('progress-bar');
@@ -524,7 +735,7 @@ const p = parseFloat(percent);
 // Update progress bar
   const progressBar = document.getElementById('progress-bar');
   progressBar.style.width = `${percent}%`;
-  progressBar.textContent = `${percent}%`;
+  animateNumber('progress-number', parseInt(percent));
 
 // Color logic and motivation
   const messageBox = document.getElementById('progress-message');
@@ -562,7 +773,6 @@ setTimeout(() => {
   messageBox.classList.add('show');
 }, 100);
   }
-    }
 
     document.addEventListener('DOMContentLoaded', () => {
       goalWeight = parseFloat(localStorage.getItem('goalWeight')) || null;
@@ -625,6 +835,8 @@ setTimeout(() => {
 
       saveEntries();
       displayEntries();
+      updateGoalMessage();
+      updateWeeklyProgress();
       updateGoalMessage();
       dateInput.value = '';
       weightInput.value = '';
@@ -758,7 +970,7 @@ function toggleEntries() {
     button.textContent = "Show Your Records ↓";
   } else {
     entriesSection.style.display = 'block';
-    button.textContent = "Hide Records ↑";
+    button.textContent = "Hide Records";
   }
 }
 
@@ -766,6 +978,236 @@ function toggleWeightForm() {
   const section = document.getElementById('add-weight-section');
   section.style.display = section.style.display === 'none' ? 'block' : 'none';
 }
+
+window.addEventListener('load', () => {
+  document.body.classList.add('loaded');
+});
+
+function animateNumber(elementId, target, duration = 1000) {
+  const el = document.getElementById(elementId);
+  const start = 0;
+  const range = target - start;
+  const stepTime = Math.max(Math.floor(duration / range), 20);
+
+  let startTime = null;
+
+  function update(timestamp) {
+    if (!startTime) startTime = timestamp;
+    const progress = timestamp - startTime;
+    const value = Math.min(start + (range * (progress / duration)), target);
+    el.textContent = Math.round(value) + '%';
+
+    if (value < target) {
+      requestAnimationFrame(update);
+    } else {
+      el.textContent = target + '%';
+    }
+  }
+
+  requestAnimationFrame(update);
+}
+
+let weeklyGoal = parseFloat(localStorage.getItem('weeklyGoal')) || null;
+let weeklyHistory = JSON.parse(localStorage.getItem('weeklyHistory')) || [];
+
+function saveWeeklyGoal() {
+  const goal = parseFloat(document.getElementById('weekly-goal').value);
+  const startDate = document.getElementById('weekly-start-date').value;
+
+  if (isNaN(goal) || !startDate) {
+    alert("Please enter a valid weekly goal and start date.");
+    return;
+  }
+
+  // Save to localStorage
+  weeklyGoal = goal;
+  localStorage.setItem('weeklyGoal', goal);
+  localStorage.setItem('weeklyStartDate', startDate);
+
+  // Auto-calculate end date
+  const start = new Date(startDate);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 7);
+  localStorage.setItem('weeklyEndDate', end.toISOString().split('T')[0]);
+
+  updateWeeklyProgress();
+  displayWeeklyHistory();
+
+  alert("Weekly goal saved!");
+  document.getElementById('weekly-goal-section').style.display = 'none';
+  document.getElementById('weekly-goal-toggle').textContent = "Show Weekly Goal ↓";
+}
+
+function toggleWeeklyGoal() {
+  const section = document.getElementById('weekly-goal-section');
+  const toggleBtn = document.getElementById('weekly-goal-toggle');
+
+  if (section.style.display === 'none') {
+    section.style.display = 'block';
+    toggleBtn.textContent = "Hide Weekly Goal";
+  } else {
+    section.style.display = 'none';
+    toggleBtn.textContent = "Show Weekly Goal";
+  }
+}
+
+document.getElementById('weekly-start-date').addEventListener('change', () => {
+  const start = new Date(document.getElementById('weekly-start-date').value);
+  if (!isNaN(start)) {
+    const end = new Date(start);
+    end.setDate(end.getDate() + 7);
+    document.getElementById('weekly-end-date').textContent = `End Date: ${end.toISOString().split('T')[0]}`;
+  }
+});
+
+function updateWeeklyProgress() {
+  const box = document.getElementById('weekly-progress');
+  const startDateStr = localStorage.getItem('weeklyStartDate');
+  const endDateStr = localStorage.getItem('weeklyEndDate');
+
+  if (!startDateStr || !endDateStr) {
+  box.textContent = "Weekly goal not set.";
+  return;
+  }
+
+  const today = new Date();
+  const startDate = new Date(startDateStr);
+  const endDate = new Date(endDateStr);
+  const startEntry = weekEntries[0];
+  const latestEntry = weekEntries[weekEntries.length - 1];
+  
+  if (today > endDate) { 
+    // Save history, reset
+    if (startEntry && latestEntry) {
+    const change = (latestEntry.weight - startEntry.weight).toFixed(1);
+    const metGoal = weeklyGoal < 0
+      ? change <= weeklyGoal
+      : change >= weeklyGoal;
+
+      weeklyHistory.push({
+      weekNumber: weeklyHistory.length + 1,
+      startDate: startDateStr,
+      endDate: endDateStr,
+      change,
+      goal: weeklyGoal,
+      met: metGoal
+      });
+
+    localStorage.setItem('weeklyHistory', JSON.stringify(weeklyHistory));
+  }
+
+  // Reset
+  localStorage.removeItem('weeklyStartDate');
+  localStorage.removeItem('weeklyEndDate');
+  box.textContent = "New week not set yet. Set your next goal!";
+  displayWeeklyHistory();
+  return;
+}
+
+  // Get weights for the current week
+  const sorted = [...entries].sort((a, b) => new Date(a.date) - new Date(b.date));
+  const weekEntries = sorted.filter(e => {
+  const d = new Date(e.date);
+  return d >= startDate && d <= endDate;
+});
+
+if (weekEntries.length < 2) {
+  box.textContent = "Not enough data this week to calculate progress.";
+  box.style.backgroundColor = "#eee";
+  return;
+}
+
+
+
+  const change = (latestEntry.weight - startEntry.weight).toFixed(1);
+  const goal = weeklyGoal;
+
+  let message = `📅 Weekly change since ${startDateStr}: ${change} kg\n`;
+
+  if (goal < 0) {
+    if (change <= goal) {
+      message += `✅ Goal met! You lost ${Math.abs(change)} kg 🎉`;
+      box.style.backgroundColor = "#c8e6c9";
+    } else if (change < 0) {
+      message += `⏳ You're losing, but not at goal yet. Keep going! 💪`;
+      box.style.backgroundColor = "#fff9c4";
+    } else {
+      message += `⚠️ You gained ${change} kg. Let's refocus.`;
+      box.style.backgroundColor = "#ffcdd2";
+    }
+  } else {
+    if (change >= goal) {
+      message += `✅ Goal met! You gained ${change} kg 🎉`;
+      box.style.backgroundColor = "#c8e6c9";
+    } else if (change > 0) {
+      message += `⏳ You're gaining, but under target. Almost there!`;
+      box.style.backgroundColor = "#fff9c4";
+    } else {
+      message += `⚠️ You lost ${Math.abs(change)} kg. Check your intake.`;
+      box.style.backgroundColor = "#ffcdd2";
+    }
+  }
+
+  box.textContent = message;
+  
+  //Update ring
+  let weeklyPercent = 0;
+  if (weeklyGoal !== 0) {
+  weeklyPercent = (change / weeklyGoal) * 100;
+}
+
+// Cap between 0 and 100 for ring display
+const boundedPercent = Math.max(0, Math.min(100, Math.abs(weeklyPercent.toFixed(1))));
+
+// Update ring and label
+document.getElementById('weekly-ring-label').textContent = `${boundedPercent}%`;
+updateWeeklyRing(boundedPercent);
+}
+
+function displayWeeklyHistory() {
+  const list = document.getElementById('weekly-history-list');
+  list.innerHTML = '';
+
+  if (weeklyHistory.length === 0) {
+    list.innerHTML = '<li>No past weekly summaries yet.</li>';
+    return;
+  }
+
+  weeklyHistory.slice().reverse().forEach(week => {
+    const li = document.createElement('li');
+    li.textContent = `📘 Week ${week.weekNumber}: ${week.startDate} → ${week.endDate} | Change: ${week.change} kg | Goal: ${week.goal} | ${week.met ? '✅ Met' : '❌ Missed'}`;
+    list.appendChild(li);
+  });
+}
+
+function toggleWeeklyHistory() {
+  const section = document.getElementById('weekly-history-section');
+  const button = document.getElementById('history-toggle-btn');
+
+  const isVisible = section.style.display !== 'none';
+  section.style.display = isVisible ? 'none' : 'block';
+  button.textContent = isVisible ? 'Show Weekly History' : 'Hide Weekly History';
+}
+
+function resetWeeklyHistory() {
+  if (confirm("Are you sure you want to clear all weekly history?")) {
+    localStorage.removeItem('weeklyHistory');
+    weeklyHistory = [];
+    displayWeeklyHistory();
+    alert("Weekly history cleared.");
+  }
+}
+
+function updateWeeklyRing(percent) {
+  const circumference = 2 * Math.PI * 35; // 2πr where r=35
+  const offset = circumference - (percent / 100) * circumference;
+  const ring = document.getElementById('weekly-ring');
+  ring.style.strokeDashoffset = offset;
+}
+
+function editGoal() {
+      document.getElementById('goal-input-section').style.display = 'block';
+    }
 
   </script>
 </body>
